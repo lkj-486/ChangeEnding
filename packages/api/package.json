@@ -1,0 +1,44 @@
+{
+  "name": "@storyweaver/api",
+  "version": "1.0.0",
+  "description": "故事编织者API服务",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist",
+    "lint": "eslint src --ext .ts",
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:reset": "prisma migrate reset --force"
+  },
+  "dependencies": {
+    "@storyweaver/core": "workspace:*",
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "dotenv": "^16.3.1",
+    "prisma": "^5.1.1",
+    "@prisma/client": "^5.1.1",
+    "zod": "^3.21.4",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/cors": "^2.8.13",
+    "@types/uuid": "^9.0.2",
+    "@types/node": "^20.4.5",
+    "tsx": "^3.12.7",
+    "typescript": "^5.1.6"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}

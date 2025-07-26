@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 自定义动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+  }
+}
+
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  width: 100%;
+}
+
+/* 自定义样式 */
+.story-text {
+  @apply text-left leading-relaxed;
+}
+
+.story-text.dialogue {
+  @apply italic text-blue-300;
+}
+
+.story-text.narration {
+  @apply text-gray-200;
+}
+
+.story-text.internal-thought {
+  @apply text-yellow-300 font-light;
+}
+
+.story-text.description {
+  @apply text-green-300;
+}
+
+.choice-button {
+  @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 text-left;
+}
+
+.choice-button:hover {
+  @apply bg-blue-500 transform scale-105;
+}
+
+.choice-button:active {
+  @apply bg-blue-800 transform scale-95;
+}
+
+.story-container {
+  @apply max-h-96 overflow-y-auto p-4 bg-gray-800 rounded-lg border border-gray-700;
+}
+
+.story-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.story-container::-webkit-scrollbar-track {
+  @apply bg-gray-700 rounded;
+}
+
+.story-container::-webkit-scrollbar-thumb {
+  @apply bg-gray-500 rounded hover:bg-gray-400;
+}

@@ -1,0 +1,91 @@
+// Prisma数据库模式定义
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 用户表（可选，用于未来的用户系统）
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  username  String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联的游戏状态
+  gameStates GameState[]
+
+  @@map("users")
+}
+
+// 故事剧本表
+model Story {
+  id          String   @id
+  title       String
+  description String
+  author      String?
+  version     String   @default("1.0.0")
+  isActive    Boolean  @default(true)
+  metadata    Json?    // 存储额外的故事元数据
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联的游戏状态
+  gameStates GameState[]
+
+  @@map("stories")
+}
+
+// 游戏状态表
+model GameState {
+  id       String @id @default(cuid())
+  storyId  String
+  userId   String?
+  
+  // 游戏状态数据
+  currentSceneId    String?
+  sceneState        String   @default("LOADING") // LOADING, RUNNING, PAUSED, ENDED
+  worldState        Json     // 序列化的ECS世界状态
+  narrativeHistory  Json     @default("[]") // 叙事历史
+  choiceHistory     Json     @default("[]") // 选择历史
+  gameProgress      Json     @default("{}") // 游戏进度数据
+  
+  // 时间戳
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastPlayedAt DateTime @default(now())
+
+  // 关联
+  story Story  @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  user  User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("game_states")
+}
+
+// 游戏会话表（用于WebSocket连接管理）
+model GameSession {
+  id          String   @id @default(cuid())
+  gameStateId String
+  socketId    String   @unique
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("game_sessions")
+}
+
+// 系统日志表
+model SystemLog {
+  id        String   @id @default(cuid())
+  level     String   // INFO, WARN, ERROR
+  message   String
+  context   Json?    // 额外的上下文信息
+  createdAt DateTime @default(now())
+
+  @@map("system_logs")
+}

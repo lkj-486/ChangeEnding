@@ -1,0 +1,173 @@
+{
+  "id": "escape-dungeon",
+  "title": "逃出地牢",
+  "description": "主角艾伦被关在一个阴暗的地牢中，必须想办法逃脱。地牢里有一个守卫在巡逻，还有一些可能有用的物品散落在角落。这是一个考验智慧、勇气和选择的冒险故事。",
+  "goal": "找到地牢的出口并成功逃脱",
+  "version": "1.0.0",
+  "author": "StoryWeaver Team",
+  "metadata": {
+    "difficulty": "medium",
+    "estimatedPlayTime": "15-30分钟",
+    "themes": ["冒险", "解谜", "选择", "逃脱"],
+    "tags": ["地牢", "守卫", "互动", "策略"],
+    "language": "zh-CN"
+  },
+  "characters": ["hero", "guard"],
+  "initialState": {
+    "entities": [
+      {
+        "id": "hero",
+        "components": {
+          "Identity": {
+            "id": "hero",
+            "displayName": "艾伦",
+            "description": "勇敢的冒险者"
+          },
+          "Position": { "x": 0, "y": 0, "z": 0 },
+          "IsInScene": { "sceneId": "escape-dungeon" },
+          "Health": { "current": 100, "max": 100 }
+        }
+      },
+      {
+        "id": "guard",
+        "components": {
+          "Identity": {
+            "id": "guard",
+            "displayName": "马库斯",
+            "description": "地牢守卫"
+          },
+          "Position": { "x": 10, "y": 5, "z": 0 },
+          "IsInScene": { "sceneId": "escape-dungeon" },
+          "Health": { "current": 120, "max": 120 }
+        }
+      }
+    ]
+  },
+  "objectives": [
+    {
+      "id": "escape_cell",
+      "title": "逃出牢房",
+      "description": "想办法打开牢房门",
+      "type": "primary",
+      "status": "active"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "cell_awakening",
+      "title": "牢房苏醒",
+      "description": "主角在牢房中醒来",
+      "type": "opening",
+      "narrative": "冰冷的石墙，生锈的铁栅栏，还有远处传来的滴水声。艾伦在这个阴暗的地牢中醒来，头脑中一片混乱。他必须想办法逃出这里，但首先需要了解周围的环境和可能的威胁。"
+    },
+    {
+      "id": "guard_encounter",
+      "title": "遭遇守卫",
+      "description": "主角遇到巡逻的守卫",
+      "type": "conflict",
+      "narrative": "脚步声越来越近，火把的光芒在走廊中摇曳。守卫马库斯正在进行例行巡逻，他的钥匙串在腰间叮当作响。这是一个关键时刻——艾伦必须决定如何应对这个威胁。",
+      "choicePoint": true
+    }
+  ],
+  "choicePoints": [
+    {
+      "id": "guard_encounter_choice",
+      "sceneId": "guard_encounter",
+      "title": "如何应对守卫？",
+      "description": "守卫正在巡逻，你需要决定如何行动",
+      "triggerCondition": {
+        "type": "scene_event",
+        "event": "guard_encounter"
+      },
+      "timeLimit": 30000,
+      "options": [
+        {
+          "id": "attack_guard",
+          "text": "直接攻击守卫",
+          "description": "用破旧的匕首攻击守卫，试图制服他",
+          "action": {
+            "type": "ATTACK",
+            "target": "guard",
+            "parameters": {
+              "weapon": "rusty_dagger"
+            }
+          },
+          "consequences": {
+            "success": {
+              "probability": 0.3,
+              "outcome": "guard_defeated",
+              "narrative": "艾伦出其不意地攻击了守卫。经过一番激烈的搏斗，他成功制服了马库斯，并夺取了钥匙。"
+            },
+            "failure": {
+              "probability": 0.7,
+              "outcome": "combat_failed",
+              "narrative": "攻击失败了！守卫比预想的更强壮，艾伦受了伤，情况变得更加危险。"
+            }
+          }
+        },
+        {
+          "id": "sneak_past",
+          "text": "尝试悄悄绕过守卫",
+          "description": "利用阴影和时机，悄悄绕过巡逻的守卫",
+          "action": {
+            "type": "SNEAK_PAST",
+            "target": "guard",
+            "parameters": {
+              "stealth": true
+            }
+          },
+          "consequences": {
+            "success": {
+              "probability": 0.6,
+              "outcome": "stealth_success",
+              "narrative": "艾伦屏住呼吸，利用阴影成功绕过了守卫。马库斯毫无察觉地继续他的巡逻。"
+            },
+            "failure": {
+              "probability": 0.4,
+              "outcome": "detected",
+              "narrative": "糟糕！一块小石头被踢动，发出了声响。守卫警觉地转过身来..."
+            }
+          }
+        },
+        {
+          "id": "distract_guard",
+          "text": "制造声响分散注意力",
+          "description": "向远处扔石头，吸引守卫的注意力",
+          "action": {
+            "type": "DISTRACT",
+            "target": "guard",
+            "parameters": {
+              "method": "throw_stone"
+            }
+          },
+          "consequences": {
+            "success": {
+              "probability": 0.8,
+              "outcome": "distraction_success",
+              "narrative": "艾伦巧妙地扔出一块石头，声音在远处的走廊中回响。守卫被吸引过去查看，留下了空隙。"
+            },
+            "failure": {
+              "probability": 0.2,
+              "outcome": "distraction_failed",
+              "narrative": "石头没有发出足够的声响，或者守卫太过警觉，分散注意力的计划失败了。"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "endings": [
+    {
+      "id": "perfect_escape",
+      "title": "完美逃脱",
+      "description": "艾伦成功逃出地牢，没有受伤，也没有被发现",
+      "narrative": "月光洒在自由的土地上，艾伦回头看了一眼身后的地牢，心中充满了对新冒险的期待。这次经历让他变得更加成熟和智慧。"
+    },
+    {
+      "id": "narrow_escape",
+      "title": "险象环生",
+      "description": "艾伦逃出了地牢，但过程惊险万分",
+      "narrative": "虽然过程充满危险，但艾伦最终还是获得了自由。这次经历将成为他永远难忘的回忆。"
+    }
+  ]
+}

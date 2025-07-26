@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试页面</title>
+</head>
+<body>
+    <h1>测试页面</h1>
+    <p>如果您能看到这个页面，说明服务器正常工作。</p>
+    <div id="test-div">等待JavaScript执行...</div>
+    
+    <script>
+        console.log("🔍 JavaScript正在执行");
+        document.getElementById('test-div').innerHTML = 'JavaScript执行成功！';
+        alert('JavaScript测试成功！');
+    </script>
+</body>
+</html>

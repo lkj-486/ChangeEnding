@@ -9,6 +9,9 @@ declare global {
   var expectConsoleError: (message?: string) => void;
 }
 
+// 导出空对象使其成为模块
+export {};
+
 // 全局测试配置
 beforeEach(() => {
   // 清除所有模拟

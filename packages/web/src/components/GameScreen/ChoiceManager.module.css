@@ -1,0 +1,344 @@
+/**
+ * ChoiceManager 样式模块
+ * 严格按照目标设计实现选择按钮和交互效果
+ */
+
+/* 🚨 CSS模块中直接定义必要的变量，确保可访问性 */
+.choiceManager {
+  --choice-gap: 1em;
+  --animation-duration-normal: 1s;
+  --animation-duration-fast: 0.3s;
+  --animation-easing: ease-out;
+  --choice-button-text: #00bfff;
+  --choice-button-border: #2a2a2a;
+  --choice-button-hover-bg: rgba(0, 191, 255, 0.05);
+  --choice-button-hover-border: #00bfff;
+  --choice-button-strong-text: #E0E0E0;
+  --highlight-color: #00bfff;
+  --text-color: #c9c9c9;
+  --background-color: #0a0a0a;
+  --border-color: #2a2a2a;
+  --font-family-serif: 'Noto Serif SC', serif;
+  --font-weight-bold: 700;
+  --status-indicator-color: #666;
+}
+
+.choiceManager {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* 等待状态 */
+.waitingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  gap: 1rem;
+}
+
+.waitingIcon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--highlight-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.waitingTitle {
+  color: var(--highlight-color);
+  font-size: 1.2rem;
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.waitingDescription {
+  color: var(--text-color);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+  opacity: 0.8;
+}
+
+/* 选择标题区域 */
+.choiceHeader {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.choiceTitle {
+  color: var(--highlight-color);
+  font-size: 1.1rem;
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 0.5rem 0;
+}
+
+.choicePrompt {
+  color: var(--text-color);
+  font-size: 0.9rem;
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* 选择选项容器 */
+.choiceOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--choice-gap);
+  opacity: 0;
+  animation: fadeIn var(--animation-duration-normal) var(--animation-easing) forwards;
+  animation-delay: 1.2s; /* 延迟1.2秒，等待叙事内容显示完成 */
+}
+
+/* React Transition Group 动画类 */
+.choices-enter {
+  opacity: 0;
+}
+
+.choices-enter-active {
+  opacity: 1;
+  transition: opacity var(--animation-duration-normal) var(--animation-easing);
+}
+
+.choices-exit {
+  opacity: 1;
+}
+
+.choices-exit-active {
+  opacity: 0;
+  transition: opacity var(--animation-duration-normal) var(--animation-easing);
+}
+
+/* 选择按钮 - 严格按照目标设计 */
+.choiceButton {
+  background: none;
+  color: var(--choice-button-text);
+  border: 1px solid var(--choice-button-border);
+  padding: 1em 1.5em;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--animation-duration-fast),
+              border-color var(--animation-duration-fast),
+              transform 0.1s ease;
+  font-family: var(--font-family-serif);
+  font-size: 0.95em;
+  line-height: 1.6;
+  border-radius: 3px;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.choiceButton:hover {
+  background-color: var(--choice-button-hover-bg);
+  border-color: var(--choice-button-hover-border);
+  transform: translateY(-1px);
+}
+
+.choiceButton:active {
+  transform: translateY(0);
+}
+
+.choiceButton.selected {
+  background-color: var(--choice-button-hover-bg);
+  border-color: var(--choice-button-hover-border);
+  box-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
+}
+
+.choiceButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 选项编号 */
+.optionNumber {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--choice-button-hover-border);
+  color: var(--background-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-bold);
+  margin-top: 0.1em;
+}
+
+/* 选项内容 */
+.optionContent {
+  flex: 1;
+}
+
+.optionText {
+  color: var(--choice-button-text);
+  line-height: 1.6;
+}
+
+/* 选项文本中的强调内容 */
+.optionText :global(strong) {
+  font-weight: var(--font-weight-bold);
+  color: var(--choice-button-strong-text);
+  display: block;
+  margin-bottom: 0.3em;
+}
+
+.optionDescription {
+  color: var(--text-color);
+  font-size: 0.85em;
+  margin-top: 0.5em;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+/* 确认区域 */
+.confirmSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.confirmButton {
+  background: var(--choice-button-hover-border);
+  color: var(--background-color);
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  font-family: var(--font-family-serif);
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: all var(--animation-duration-fast) var(--animation-easing);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.confirmButton.enabled {
+  background: var(--choice-button-hover-border);
+  box-shadow: 0 2px 8px rgba(0, 191, 255, 0.3);
+}
+
+.confirmButton.enabled:hover {
+  background: #0099cc;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 191, 255, 0.4);
+}
+
+.confirmButton.disabled {
+  background: var(--border-color);
+  color: var(--status-indicator-color);
+  cursor: not-allowed;
+}
+
+.submitSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* 提示信息 */
+.choiceHint {
+  text-align: center;
+  color: var(--text-color);
+  font-size: 0.85rem;
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.keyboardHint {
+  text-align: center;
+  color: var(--status-indicator-color);
+  font-size: 0.75rem;
+  opacity: 0.6;
+  font-family: monospace;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .choiceButton {
+    padding: 0.8em 1.2em;
+    font-size: 0.9em;
+    gap: 0.8rem;
+  }
+  
+  .optionNumber {
+    width: 20px;
+    height: 20px;
+    font-size: 0.75rem;
+  }
+  
+  .confirmButton {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .choiceManager {
+    gap: 1rem;
+  }
+  
+  .choiceButton {
+    padding: 0.7em 1em;
+    font-size: 0.85em;
+    gap: 0.6rem;
+  }
+  
+  .choiceTitle {
+    font-size: 1rem;
+  }
+  
+  .choicePrompt {
+    font-size: 0.85rem;
+  }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  .choiceButton {
+    border-width: 2px;
+  }
+  
+  .choiceButton.selected {
+    border-width: 3px;
+  }
+}

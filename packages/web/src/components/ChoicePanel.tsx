@@ -8,18 +8,9 @@ interface ChoicePanelProps {
   gameId: string;
 }
 
-interface ChoiceOption {
-  id: string;
-  text: string;
-  action: any;
-}
+// 移除未使用的ChoiceOption接口，使用全局类型定义
 
-interface ChoicePoint {
-  choicePointId: string;
-  options: ChoiceOption[];
-  context: any;
-  timestamp: number;
-}
+// 移除未使用的ChoicePoint接口，使用全局类型定义
 
 const ChoicePanel: React.FC<ChoicePanelProps> = ({ gameId }) => {
   const [selectedOptionId, setSelectedOptionId] = useState<string>('');

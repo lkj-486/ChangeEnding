@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选择点调试测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        .info { background: #e3f2fd; color: #1565c0; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>选择点调试测试</h1>
+    <button onclick="startTest()">开始测试</button>
+    <button onclick="clearLogs()">清空日志</button>
+    
+    <div id="logs"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket = null;
+        let gameId = null;
+
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('logs');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log ${type}`;
+            logDiv.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsDiv.appendChild(logDiv);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+
+        async function startTest() {
+            try {
+                log('🎮 开始创建新游戏...', 'info');
+                
+                // 1. 创建新游戏
+                const response = await fetch('http://localhost:3002/api/game/new', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        storyId: 'escape-dungeon',
+                        userId: 'debug-test-user'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!data.success) {
+                    log(`❌ 游戏创建失败: ${data.message}`, 'error');
+                    return;
+                }
+
+                gameId = data.data.gameId;
+                log(`✅ 游戏创建成功! GameID: ${gameId}`, 'success');
+
+                // 2. 建立WebSocket连接
+                log('🔌 建立WebSocket连接...', 'info');
+                socket = io('http://localhost:3002');
+
+                socket.on('connect', () => {
+                    log(`✅ WebSocket连接成功, Socket ID: ${socket.id}`, 'success');
+                    
+                    // 加入游戏房间
+                    socket.emit('join-game', gameId);
+                    log(`🏠 已加入游戏房间: ${gameId}`, 'info');
+                });
+
+                socket.on('disconnect', () => {
+                    log('❌ WebSocket连接断开', 'error');
+                });
+
+                // 3. 监听叙事更新
+                socket.on('narrative-update', (data) => {
+                    log(`📖 收到叙事更新: ${data.segment.id} (${data.segment.type})`, 'info');
+                });
+
+                // 4. 监听选择点 - 重点观察
+                socket.on('choice-required', (data) => {
+                    log(`🎯 收到选择点事件! ID: ${data.choicePoint.choicePointId}`, 'success');
+                    log(`📋 选择选项数量: ${data.choicePoint.options.length}`, 'info');
+                    data.choicePoint.options.forEach((option, index) => {
+                        log(`   ${index + 1}. ${option.text}`, 'info');
+                    });
+                });
+
+                // 5. 监听选择完成
+                socket.on('choice-completed', (data) => {
+                    log(`✅ 选择已完成: ${data.selectedOptionId}`, 'success');
+                });
+
+                // 6. 监听错误
+                socket.on('error', (error) => {
+                    log(`🚨 WebSocket错误: ${error}`, 'error');
+                });
+
+                log('⏰ 等待WebSocket事件...', 'info');
+
+            } catch (error) {
+                log(`💥 测试失败: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

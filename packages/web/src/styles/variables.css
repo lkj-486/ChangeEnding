@@ -1,0 +1,86 @@
+/**
+ * CSS变量系统 - 基于目标设计规范
+ * 严格按照 D:\chang ending\想要的游戏效果.txt 中的设计实现
+ */
+
+:root {
+  /* 颜色系统 */
+  --background-color: #0a0a0a;
+  --story-panel-bg: #111111;
+  --interaction-panel-bg: #0e0e0e;
+  --text-color: #c9c9c9;
+  --highlight-color: #00bfff;
+  --border-color: #2a2a2a;
+  --scrollbar-thumb-color: #444;
+  --scrollbar-track-color: #1a1a1a;
+  
+  /* 选择按钮颜色 */
+  --choice-button-text: #00bfff;
+  --choice-button-border: #2a2a2a;
+  --choice-button-hover-bg: rgba(0, 191, 255, 0.05);
+  --choice-button-hover-border: #00bfff;
+  --choice-button-strong-text: #E0E0E0;
+  
+  /* 状态指示器 */
+  --status-indicator-color: #666;
+  --status-indicator-active: #00bfff;
+  
+  /* 字体系统 */
+  --font-family-serif: 'Noto Serif SC', 'Source Han Serif SC', 'Noto Serif CJK SC', serif;
+  --font-size-base: 18px;
+  --line-height-base: 2;
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
+  
+  /* 布局系统 */
+  --container-max-width: 1400px;
+  --container-max-height: 900px;
+  --story-area-flex: 7; /* 70% */
+  --interaction-panel-flex: 3; /* 30% */
+  --panel-padding: 2.5em;
+  --choice-gap: 1em;
+  
+  /* 动画系统 */
+  --animation-duration-fast: 0.3s;
+  --animation-duration-normal: 1s;
+  --animation-duration-slow: 1.5s;
+  --animation-easing: ease-out;
+  
+  /* 阅读优化 */
+  --reading-line-length: 65ch;
+  --paragraph-spacing: 1.5em;
+  
+  /* 滚动条 */
+  --scrollbar-width: 8px;
+  --scrollbar-border-radius: 4px;
+  
+  /* 阴影系统 */
+  --container-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+  
+  /* Z-index层级 */
+  --z-index-base: 1;
+  --z-index-overlay: 10;
+  --z-index-modal: 100;
+  --z-index-tooltip: 1000;
+}
+
+/* 响应式断点变量 */
+@media (max-width: 768px) {
+  :root {
+    --font-size-base: 16px;
+    --line-height-base: 1.8;
+    --panel-padding: 1.5em;
+    --paragraph-spacing: 1.2em;
+    --choice-gap: 0.8em;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --font-size-base: 14px;
+    --line-height-base: 1.6;
+    --panel-padding: 1em;
+    --paragraph-spacing: 1em;
+    --choice-gap: 0.6em;
+  }
+}

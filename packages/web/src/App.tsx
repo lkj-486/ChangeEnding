@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { BookOpen, Play, Loader2 } from 'lucide-react';
-import StoryDisplay from './components/StoryDisplay';
-import ChoicePanel from './components/ChoicePanel';
+// 导入新的GameScreen组件
+import { GameScreen } from './components/GameScreen';
 import { useGameStore } from './stores/gameStore';
 import { apiClient } from './services/api';
 
@@ -10,7 +10,7 @@ function App() {
   console.log("🔍 调试步骤0: App组件开始渲染", { timestamp: new Date().toISOString() });
 
   const [selectedStoryId, setSelectedStoryId] = useState<string>('');
-  const [testGameId, setTestGameId] = useState<string>('');
+  // 移除未使用的testGameId状态
   const { gameId, isGameActive, startGame } = useGameStore();
 
   // 调试状态变化
@@ -47,13 +47,13 @@ function App() {
   React.useEffect(() => {
     console.log("🔍 故事数据状态变化", {
       isLoadingStories,
-      storiesError: storiesError?.message || null,
+      storiesError: (storiesError as any)?.message || null,
       storiesData,
       storiesDataType: typeof storiesData,
       storiesDataKeys: storiesData ? Object.keys(storiesData) : [],
-      storiesCount: storiesData?.stories?.length || 0,
-      hasStories: !!storiesData?.stories,
-      storiesArray: storiesData?.stories,
+      storiesCount: (storiesData as any)?.stories?.length || 0,
+      hasStories: !!(storiesData as any)?.stories,
+      storiesArray: (storiesData as any)?.stories,
       timestamp: new Date().toISOString()
     });
   }, [isLoadingStories, storiesError, storiesData]);
@@ -78,42 +78,14 @@ function App() {
     }
   };
 
-  // 测试现有游戏
-  const handleTestExistingGame = () => {
-    if (!testGameId) return;
+  // 移除未使用的测试函数
 
-    // 直接设置游戏状态为活跃
-    useGameStore.setState({
-      gameId: testGameId,
-      storyId: 'escape-dungeon',
-      isGameActive: true,
-    });
-  };
+  // 移除测试模式，恢复正常流程
 
-  // 如果游戏已激活，显示游戏界面
+  // 如果游戏已激活，显示新的沉浸式游戏界面
   if (isGameActive && gameId) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white">
-        <div className="container mx-auto px-4 py-4 md:py-8">
-          <header className="mb-6 md:mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-center mb-2">故事编织者</h1>
-            <p className="text-gray-400 text-center text-sm md:text-base">AI驱动的互动叙事体验</p>
-          </header>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
-            {/* 故事显示区域 */}
-            <div className="lg:col-span-2 order-1">
-              <StoryDisplay gameId={gameId} />
-            </div>
-
-            {/* 选择面板 */}
-            <div className="lg:col-span-1 order-2 lg:order-2">
-              <ChoicePanel gameId={gameId} />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    console.log("🔍 调试步骤5: 渲染新的沉浸式游戏界面", { gameId, isGameActive });
+    return <GameScreen gameId={gameId} />;
   }
 
   // 显示故事选择界面
@@ -145,10 +117,10 @@ function App() {
                 ❌ 加载故事列表失败
               </div>
               <div className="text-gray-400 text-sm">
-                {storiesError.message || '网络连接错误'}
+                {(storiesError as any)?.message || '网络连接错误'}
               </div>
             </div>
-          ) : !storiesData?.stories || storiesData.stories.length === 0 ? (
+          ) : !(storiesData as any)?.stories || (storiesData as any).stories.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-gray-400 mb-4">
                 📚 暂无可用故事
@@ -159,7 +131,7 @@ function App() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
-              {storiesData.stories.map((story: any) => (
+              {(storiesData as any).stories.map((story: any) => (
                 <div
                   key={story.id}
                   className={`p-4 md:p-6 rounded-lg border-2 cursor-pointer transition-all duration-200 ${

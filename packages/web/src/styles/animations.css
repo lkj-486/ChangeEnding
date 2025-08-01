@@ -1,0 +1,159 @@
+/**
+ * 动画系统 - 基于目标设计的动画效果
+ * 使用原生CSS动画确保性能和流畅度
+ */
+
+/* 核心动画关键帧 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(0, 191, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.6);
+  }
+}
+
+@keyframes statusIndicatorFlash {
+  0% {
+    color: var(--status-indicator-color);
+  }
+  10% {
+    color: var(--status-indicator-active);
+  }
+  90% {
+    color: var(--status-indicator-active);
+  }
+  100% {
+    color: var(--status-indicator-color);
+  }
+}
+
+/* 动画类 - 用于React Transition Group */
+.narrative-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.narrative-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--animation-duration-slow) var(--animation-easing),
+              transform var(--animation-duration-slow) var(--animation-easing);
+}
+
+.narrative-exit {
+  opacity: 1;
+}
+
+.narrative-exit-active {
+  opacity: 0;
+  transition: opacity var(--animation-duration-fast) var(--animation-easing);
+}
+
+.choices-enter {
+  opacity: 0;
+}
+
+.choices-enter-active {
+  opacity: 1;
+  transition: opacity var(--animation-duration-normal) var(--animation-easing);
+}
+
+.choices-exit {
+  opacity: 1;
+}
+
+.choices-exit-active {
+  opacity: 0;
+  transition: opacity var(--animation-duration-fast) var(--animation-easing);
+}
+
+/* 预定义动画类 */
+.animate-fade-in {
+  animation: fadeIn var(--animation-duration-slow) var(--animation-easing) forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp var(--animation-duration-normal) var(--animation-easing) forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight var(--animation-duration-normal) var(--animation-easing) forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-status-flash {
+  animation: statusIndicatorFlash 1s ease-out;
+}
+
+/* 延迟动画类 */
+.animate-delay-1 {
+  animation-delay: 0.2s;
+}
+
+.animate-delay-2 {
+  animation-delay: 0.4s;
+}
+
+.animate-delay-3 {
+  animation-delay: 0.6s;
+}
+
+.animate-delay-4 {
+  animation-delay: 0.8s;
+}
+
+.animate-delay-5 {
+  animation-delay: 1s;
+}
+
+/* 硬件加速优化 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* 减少动画的媒体查询 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

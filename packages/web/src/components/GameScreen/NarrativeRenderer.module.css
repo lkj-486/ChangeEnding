@@ -1,0 +1,236 @@
+/**
+ * NarrativeRenderer 样式模块
+ * 实现故事内容的优雅渲染和动画效果
+ */
+
+.narrativeContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* 故事标题区域 */
+.storyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.storyTitle {
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--highlight-color);
+  margin: 0;
+}
+
+.progressIndicator {
+  font-size: 0.9rem;
+  color: var(--status-indicator-color);
+  font-weight: var(--font-weight-normal);
+}
+
+/* 叙事内容区域 */
+.narrativeContent {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.5rem; /* 为滚动条留空间 */
+}
+
+/* 🎯 CSS动画关键帧定义 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 叙事项目基础样式 */
+.narrativeItem {
+  margin-bottom: var(--paragraph-spacing);
+  max-width: var(--reading-line-length);
+
+  /* 🚨 关键：默认透明，通过CSS动画显示 */
+  opacity: 0;
+  animation: fadeIn 1s forwards;
+  /* animation-delay 将通过内联样式设置 */
+}
+
+/* 内容类型样式 */
+.narrativeItem.narration {
+  color: var(--text-color);
+  line-height: var(--line-height-base);
+}
+
+.narrativeItem.dialogue {
+  color: var(--highlight-color);
+  font-style: italic;
+  padding-left: 1rem;
+  border-left: 2px solid var(--highlight-color);
+  margin-left: 0.5rem;
+}
+
+.narrativeItem.introspection {
+  color: #b8b8b8;
+  font-style: italic;
+  background: rgba(0, 191, 255, 0.05);
+  padding: 1rem;
+  border-radius: 4px;
+  border-left: 3px solid var(--highlight-color);
+}
+
+.narrativeItem.description {
+  color: #d4d4d4;
+  font-size: 0.95em;
+}
+
+.narrativeItem.internal_thought {
+  color: #a8a8a8;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+/* 类型指示器 */
+.typeIndicator {
+  font-size: 0.8rem;
+  color: var(--status-indicator-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+  font-weight: var(--font-weight-bold);
+}
+
+/* 内容区域 */
+.content {
+  line-height: var(--line-height-base);
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* 时间戳（开发模式） */
+.timestamp {
+  font-size: 0.7rem;
+  color: var(--status-indicator-color);
+  margin-top: 0.5rem;
+  opacity: 0.6;
+}
+
+/* 等待指示器 */
+.waitingIndicator {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1rem;
+  background: rgba(0, 191, 255, 0.05);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 191, 255, 0.2);
+}
+
+.waitingText {
+  color: var(--highlight-color);
+  font-style: italic;
+}
+
+/* 继续指示器 */
+.continueIndicator {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+/* 动画点 */
+.waitingDots,
+.continueDots {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.waitingDots span,
+.continueDots span {
+  width: 6px;
+  height: 6px;
+  background: var(--highlight-color);
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.waitingDots span:nth-child(2),
+.continueDots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.waitingDots span:nth-child(3),
+.continueDots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* 阅读进度条 */
+.readingProgress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--border-color);
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background: var(--highlight-color);
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .storyHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .narrativeItem {
+    max-width: none;
+  }
+  
+  .narrativeItem.dialogue,
+  .narrativeItem.introspection {
+    margin-left: 0;
+    padding-left: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .storyTitle {
+    font-size: 1.2rem;
+  }
+  
+  .progressIndicator {
+    font-size: 0.8rem;
+  }
+  
+  .narrativeItem.introspection {
+    padding: 0.8rem;
+  }
+}

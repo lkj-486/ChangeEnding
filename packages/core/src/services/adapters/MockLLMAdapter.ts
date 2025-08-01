@@ -99,10 +99,11 @@ export class MockLLMAdapter implements LLMAdapter {
    * 初始化默认响应
    */
   private initializeDefaultResponses(): void {
-    // AI动作生成响应
+    // 🔧 修复：AI动作生成响应 - 使用动态生成而不是固定响应
+    // 这个默认响应现在只是占位符，实际会在generateResponse中动态生成
     this.defaultResponses.set('action', JSON.stringify({
-      type: 'MOVE',
-      target: '前方',
+      type: 'EXPLORE',
+      target: '周围环境',
       parameters: {
         reasoning: '探索周围环境，寻找线索',
         expected_outcome: '发现新的信息或物品'
@@ -157,6 +158,49 @@ export class MockLLMAdapter implements LLMAdapter {
   }
 
   /**
+   * 🔧 生成随机动作，解决AI代理无限循环问题
+   */
+  private generateRandomAction(): string {
+    const actionTypes = [
+      'MOVE', 'EXPLORE', 'LOOK_AROUND', 'SEARCH', 'LISTEN',
+      'HIDE', 'WAIT', 'INTERACT', 'SNEAK_PAST', 'DISTRACT'
+    ];
+
+    const targets = [
+      '牢房角落', '铁栅栏', '石墙', '地面', '走廊',
+      '门口', '阴影处', '远处', '周围环境', '可疑区域'
+    ];
+
+    const reasonings = [
+      '寻找逃脱的线索', '检查是否有隐藏物品', '观察周围环境',
+      '倾听是否有脚步声', '寻找薄弱点', '避免被发现',
+      '等待合适时机', '探索新区域', '分析当前情况', '制定逃脱计划'
+    ];
+
+    const outcomes = [
+      '发现有用信息', '找到隐藏物品', '了解环境布局',
+      '获得战术优势', '避免危险', '找到逃脱路线',
+      '制定更好策略', '发现守卫弱点', '获得时间优势', '找到关键线索'
+    ];
+
+    // 使用时间戳确保真正的随机性
+    const timestamp = Date.now();
+    const actionIndex = timestamp % actionTypes.length;
+    const targetIndex = (timestamp + 1) % targets.length;
+    const reasoningIndex = (timestamp + 2) % reasonings.length;
+    const outcomeIndex = (timestamp + 3) % outcomes.length;
+
+    return JSON.stringify({
+      type: actionTypes[actionIndex],
+      target: targets[targetIndex],
+      parameters: {
+        reasoning: reasonings[reasoningIndex],
+        expected_outcome: outcomes[outcomeIndex]
+      }
+    });
+  }
+
+  /**
    * 获取场景特定响应
    */
   private getSceneSpecificResponse(request: LLMRequest): string {
@@ -179,7 +223,8 @@ export class MockLLMAdapter implements LLMAdapter {
     }
     
     if (prompt.includes('动作') || prompt.includes('action')) {
-      return scenario.responses.action_move || this.defaultResponses.get('action')!;
+      // 🔧 修复：动态生成多样化的动作，而不是总是返回相同的MOVE
+      return this.generateRandomAction();
     }
     
     if (prompt.includes('潜行') || prompt.includes('stealth')) {
@@ -198,7 +243,8 @@ export class MockLLMAdapter implements LLMAdapter {
 
     // 根据prompt内容判断响应类型
     if (prompt.includes('json') || prompt.includes('action') || prompt.includes('动作')) {
-      return this.defaultResponses.get('action')!;
+      // 🔧 修复：在默认响应中也使用随机动作生成
+      return this.generateRandomAction();
     }
     
     if (prompt.includes('叙述') || prompt.includes('narrative') || prompt.includes('故事')) {

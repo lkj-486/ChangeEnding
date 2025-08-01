@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端API连接测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        .info { background: #e3f2fd; color: #1565c0; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>前端API连接测试</h1>
+    <button onclick="testDirectAPI()">测试直接API调用</button>
+    <button onclick="testWithAxios()">测试Axios调用</button>
+    <button onclick="clearLogs()">清空日志</button>
+    
+    <div id="logs"></div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('logs');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log ${type}`;
+            logDiv.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsDiv.appendChild(logDiv);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+
+        // 测试直接fetch调用
+        async function testDirectAPI() {
+            try {
+                log('🔍 开始直接API测试...', 'info');
+                
+                // 测试健康检查
+                log('📡 测试健康检查端点...', 'info');
+                const healthResponse = await fetch('http://localhost:3002/health');
+                const healthData = await healthResponse.json();
+                log(`✅ 健康检查成功: ${JSON.stringify(healthData)}`, 'success');
+                
+                // 测试故事列表
+                log('📚 测试故事列表端点...', 'info');
+                const storiesResponse = await fetch('http://localhost:3002/api/stories');
+                const storiesData = await storiesResponse.json();
+                log(`✅ 故事列表获取成功: ${storiesData.data.stories.length} 个故事`, 'success');
+                
+                // 测试创建游戏
+                log('🎮 测试创建游戏端点...', 'info');
+                const gameResponse = await fetch('http://localhost:3002/api/game/new', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        storyId: 'escape-dungeon',
+                        userId: 'frontend-test-user'
+                    })
+                });
+                
+                if (!gameResponse.ok) {
+                    throw new Error(`HTTP ${gameResponse.status}: ${gameResponse.statusText}`);
+                }
+                
+                const gameData = await gameResponse.json();
+                log(`✅ 游戏创建成功: GameID ${gameData.data.gameId}`, 'success');
+                
+            } catch (error) {
+                log(`❌ 直接API测试失败: ${error.message}`, 'error');
+                console.error('详细错误:', error);
+            }
+        }
+
+        // 测试使用Axios（如果可用）
+        async function testWithAxios() {
+            try {
+                log('🔍 开始Axios测试...', 'info');
+                
+                if (typeof axios === 'undefined') {
+                    log('⚠️ Axios未加载，跳过测试', 'error');
+                    return;
+                }
+                
+                const response = await axios.get('http://localhost:3002/api/stories');
+                log(`✅ Axios测试成功: ${response.data.data.stories.length} 个故事`, 'success');
+                
+            } catch (error) {
+                log(`❌ Axios测试失败: ${error.message}`, 'error');
+                console.error('详细错误:', error);
+            }
+        }
+    </script>
+</body>
+</html>

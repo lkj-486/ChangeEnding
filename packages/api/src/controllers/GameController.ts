@@ -116,6 +116,9 @@ export class GameController {
   private sceneLoader: SceneLoader;
   private llmService: LLMService;
 
+  // 🚀 新增：存储每个游戏的最近叙事内容
+  private static recentNarrativeStorage: Map<string, any[]> = new Map();
+
   constructor() {
     this.sceneLoader = new SceneLoader({
       scenesPath: '../../packages/core/data/scenes',
@@ -442,7 +445,10 @@ class GameInstance {
 
     // 初始化核心组件
     this.worldState = new WorldState();
-    this.director = new Director(this.worldState);
+    // 🔧 创建StubAgentCore实例来修复Director构造函数
+    const { StubAgentCore } = require('@storyweaver/core');
+    const stubAgentCore = new StubAgentCore();
+    this.director = new Director(this.worldState, stubAgentCore);
     this.narrativeAgent = new NarrativeAgent({ llmService });
     this.playerHandler = new PlayerInterventionHandler();
 
@@ -493,18 +499,45 @@ class GameInstance {
       });
     });
 
-    // 监听叙事生成事件
-    eventBus.on('NARRATIVE_GENERATED', ({ segment }) => {
-      // 序列化叙事片段，过滤循环引用
-      const serializedSegment = serializeForSocket(segment);
-
-      console.log(`发送叙事更新事件`);
-
-      this.io.to(`game-${this.gameId}`).emit('narrative-update', {
-        gameId: this.gameId,
-        segment: serializedSegment,
+    // 🚀 事件驱动架构：监听NARRATIVE_READY事件（仅包含干净的文学文本）
+    (eventBus as any).on('NARRATIVE_READY', (payload: any) => {
+      const { segment, timestamp } = payload;
+      console.log('📡 [GameController] 收到NARRATIVE_READY事件', {
+        type: segment.type,
+        contentLength: segment.content.length,
+        contentPreview: segment.content.substring(0, 50) + '...',
+        timestamp: new Date(timestamp).toISOString()
       });
+
+      // 构建叙事数据
+      const narrativeData = {
+        gameId: this.gameId,
+        segment: {
+          id: segment.metadata?.narrativeId || `narrative_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`, // 🔧 修复：确保包含id字段
+          type: segment.type,
+          content: segment.content, // 保证是干净的中文文学文本
+          character: segment.character,
+          timestamp: timestamp, // 🔧 修复：添加timestamp字段
+          metadata: segment.metadata
+        },
+        timestamp: timestamp
+      };
+
+      // 🚀 存储叙事内容以供后续客户端获取
+      GameControllerStatic.storeNarrativeForGame(this.gameId, narrativeData);
+
+      // 直接发送干净的文学文本，无需任何过滤
+      this.io.to(`game-${this.gameId}`).emit('narrative-update', narrativeData);
+
+      console.log('✅ [GameController] 已发送干净的叙事内容到前端');
     });
+
+    // 🔧 修复：移除重复的NARRATIVE_GENERATED事件监听器
+    // 现在只使用NARRATIVE_READY事件，避免重复发送叙事内容
+    // eventBus.on('NARRATIVE_GENERATED', ({ segment }) => {
+    //   console.log('📡 [GameController] 收到旧版NARRATIVE_GENERATED事件（向后兼容）');
+    //   // 已移除以避免重复发送
+    // });
 
     // 监听选择后果应用事件
     eventBus.on('CONSEQUENCES_APPLIED', ({ sceneId, consequences }) => {
@@ -548,6 +581,15 @@ class GameInstance {
     // 加载场景
     console.log(`🎬 加载场景: ${this.scene.title}`);
     await this.director.loadScene(this.scene);
+
+    // 🔧 修复：主动触发初始叙事生成
+    console.log('🚀 主动触发初始叙事生成');
+    try {
+      await this.director.processGameTurn('scene_entered');
+      console.log('✅ 初始AI编排触发完成');
+    } catch (error) {
+      console.error('❌ 初始AI编排触发失败:', error);
+    }
 
     // 等待叙事代理生成开场叙述
     console.log(`📝 等待叙事代理生成开场叙述...`);
@@ -629,6 +671,7 @@ class GameInstance {
       eventBus.emit('AI_ACTION_PROPOSED', {
         agentId: 'guard',
         action: mockAction,
+        timestamp: Date.now()
       });
     } else {
       console.warn(`⚠️ 未找到guard代理`);
@@ -657,6 +700,10 @@ class GameInstance {
         }
 
         console.log(`选择处理完成: ${playerChoice.selectedOptionId}`);
+
+        // 🚨 关键修复：解锁Director的选择点状态
+        this.director.unlockChoicePoint();
+        console.log(`🔓 [GameInstance] 已解锁Director选择点状态`);
 
         // 发送choice-completed事件到前端
         if (this.io) {
@@ -729,6 +776,36 @@ class GameInstance {
    */
   getGameState(): any {
     return this.getState();
+  }
+}
+
+// 🚀 新增：GameController的静态方法
+export class GameControllerStatic {
+  private static recentNarrativeStorage: Map<string, any[]> = new Map();
+
+  // 获取游戏的最近叙事内容
+  static getRecentNarrativeForGame(gameId: string): any[] {
+    return GameControllerStatic.recentNarrativeStorage.get(gameId) || [];
+  }
+
+  // 存储游戏的叙事内容
+  static storeNarrativeForGame(gameId: string, narrativeData: any): void {
+    if (!GameControllerStatic.recentNarrativeStorage.has(gameId)) {
+      GameControllerStatic.recentNarrativeStorage.set(gameId, []);
+    }
+
+    const narratives = GameControllerStatic.recentNarrativeStorage.get(gameId)!;
+    narratives.push(narrativeData);
+
+    // 只保留最近的10条叙事内容
+    if (narratives.length > 10) {
+      narratives.shift();
+    }
+
+    console.log(`📚 存储叙事内容 ${gameId}:`, {
+      totalCount: narratives.length,
+      latestContent: narrativeData.segment?.content?.substring(0, 50) + '...'
+    });
   }
 }
 

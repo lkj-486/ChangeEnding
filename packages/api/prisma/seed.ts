@@ -92,11 +92,40 @@ async function main() {
   // 创建示例游戏状态
   const sampleGameState = await prisma.gameState.create({
     data: {
+      gameId: 'sample-game-' + Date.now(),
       storyId: 'escape-dungeon',
       userId: testUser.id,
       currentSceneId: 'escape-dungeon',
       sceneState: 'RUNNING',
-      worldState: {
+      // 新架构：叙事账本
+      narrativeLedger: {
+        playerCharacter: {
+          morality_vector: { honesty: 0.5, violence: 0.0, compassion: 0.5 },
+          methodology_preference: { stealth: 5, diplomacy: 5, force: 5 },
+          personality_traits: ['勇敢', '谨慎']
+        },
+        characterRelationships: {
+          guard: {
+            affinity: 50,
+            trust: 50,
+            last_interaction_summary: '初次相遇'
+          }
+        },
+        worldState: {
+          current_scene_id: 'escape-dungeon',
+          scene_flags: { has_key: false, guard_alerted: false },
+          time_of_day: 'evening',
+          location: '逃出地牢'
+        },
+        recentEvents: [
+          {
+            type: 'scene_change',
+            summary: '进入地牢场景',
+            timestamp: Date.now()
+          }
+        ]
+      },
+      worldStateJson: {
         entities: [
           {
             id: 'hero',

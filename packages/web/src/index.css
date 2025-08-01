@@ -1,3 +1,7 @@
+/* 导入新的样式系统 */
+@import './styles/base.css';
+
+/* 保留Tailwind用于辅助样式 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

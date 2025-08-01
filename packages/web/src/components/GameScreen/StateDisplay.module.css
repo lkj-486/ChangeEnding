@@ -1,0 +1,286 @@
+/**
+ * StateDisplay 样式模块
+ * 实现状态指示器和系统信息显示
+ */
+
+.stateDisplay {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+  position: relative;
+}
+
+/* 通用区域样式 */
+.statusSection,
+.progressSection,
+.ledgerSection {
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.sectionTitle {
+  color: var(--highlight-color);
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 0.8rem 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* 状态项目 */
+.statusItem,
+.progressItem,
+.ledgerItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+  padding: 0.3rem 0;
+}
+
+.statusItem:last-child,
+.progressItem:last-child,
+.ledgerItem:last-child {
+  margin-bottom: 0;
+}
+
+.statusLabel,
+.progressLabel,
+.ledgerLabel {
+  color: var(--text-color);
+  opacity: 0.8;
+  font-size: 0.8rem;
+}
+
+.statusValue,
+.progressValue,
+.ledgerValue {
+  color: var(--text-color);
+  font-weight: var(--font-weight-bold);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* 状态图标 */
+.statusIcon {
+  font-size: 0.7rem;
+  display: inline-block;
+  width: 12px;
+  text-align: center;
+}
+
+/* 连接状态样式 */
+.connected {
+  color: #4ade80;
+}
+
+.connecting {
+  color: #fbbf24;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.disconnected {
+  color: #f87171;
+}
+
+.error {
+  color: #ef4444;
+}
+
+.unknown {
+  color: var(--status-indicator-color);
+}
+
+/* 状态变化闪烁效果 */
+.flash {
+  animation: statusFlash 1s ease-out;
+}
+
+@keyframes statusFlash {
+  0% {
+    color: var(--status-indicator-color);
+  }
+  10% {
+    color: var(--highlight-color);
+  }
+  90% {
+    color: var(--highlight-color);
+  }
+  100% {
+    color: inherit;
+  }
+}
+
+/* 调试信息 */
+.debugInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+  opacity: 0.6;
+}
+
+.debugLabel {
+  color: var(--status-indicator-color);
+  font-size: 0.75rem;
+  font-family: monospace;
+}
+
+.debugValue {
+  color: var(--status-indicator-color);
+  font-size: 0.75rem;
+  font-family: monospace;
+}
+
+/* 状态指示器（模拟目标设计的右下角指示器） */
+.statusIndicator {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  color: var(--status-indicator-color);
+  font-size: 0.9em;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: color 0.5s var(--animation-easing);
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px 0 0 0;
+  border-top: 1px solid var(--border-color);
+  border-left: 1px solid var(--border-color);
+}
+
+.indicatorFlash {
+  animation: statusIndicatorFlash 1s ease-out;
+}
+
+@keyframes statusIndicatorFlash {
+  0% {
+    color: var(--status-indicator-color);
+  }
+  10% {
+    color: var(--status-indicator-active);
+  }
+  90% {
+    color: var(--status-indicator-active);
+  }
+  100% {
+    color: var(--status-indicator-color);
+  }
+}
+
+/* 最后更新时间 */
+.lastUpdate {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.updateLabel {
+  color: var(--status-indicator-color);
+}
+
+.updateTime {
+  color: var(--text-color);
+  font-family: monospace;
+}
+
+/* 脉冲动画 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .stateDisplay {
+    gap: 1rem;
+    font-size: 0.8rem;
+  }
+  
+  .statusSection,
+  .progressSection,
+  .ledgerSection {
+    padding: 0.8rem;
+  }
+  
+  .sectionTitle {
+    font-size: 0.85rem;
+    margin-bottom: 0.6rem;
+  }
+  
+  .statusItem,
+  .progressItem,
+  .ledgerItem {
+    margin-bottom: 0.4rem;
+  }
+  
+  .statusIndicator {
+    font-size: 0.8em;
+    padding: 0.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stateDisplay {
+    gap: 0.8rem;
+    font-size: 0.75rem;
+  }
+  
+  .statusSection,
+  .progressSection,
+  .ledgerSection {
+    padding: 0.6rem;
+  }
+  
+  .statusItem,
+  .progressItem,
+  .ledgerItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+  
+  .statusValue,
+  .progressValue,
+  .ledgerValue {
+    align-self: flex-end;
+  }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  .statusSection,
+  .progressSection,
+  .ledgerSection {
+    border-width: 2px;
+  }
+  
+  .connected {
+    color: #00ff00;
+  }
+  
+  .disconnected,
+  .error {
+    color: #ff0000;
+  }
+  
+  .connecting {
+    color: #ffff00;
+  }
+}

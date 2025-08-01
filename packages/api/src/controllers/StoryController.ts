@@ -22,9 +22,18 @@ export class StoryController {
   private sceneLoader: SceneLoader;
 
   constructor() {
+    // 🔧 修复：使用绝对路径避免相对路径问题
+    const path = require('path');
+    const projectRoot = path.resolve(__dirname, '../../../..');
+
     this.sceneLoader = new SceneLoader({
-      scenesPath: '../../packages/core/data/scenes',
-      charactersPath: '../../packages/core/data/characters',
+      scenesPath: path.join(projectRoot, 'packages/core/data/scenes'),
+      charactersPath: path.join(projectRoot, 'packages/core/data/characters'),
+    });
+
+    console.log('📁 StoryController初始化完成', {
+      scenesPath: path.join(projectRoot, 'packages/core/data/scenes'),
+      charactersPath: path.join(projectRoot, 'packages/core/data/characters')
     });
   }
 
@@ -33,14 +42,21 @@ export class StoryController {
    */
   async getAllStories(req: Request, res: Response): Promise<void> {
     try {
+      console.log('📚 开始获取故事列表...');
+
       // 获取可用的场景列表
+      console.log('🔍 获取可用场景列表...');
       const availableScenes = await this.sceneLoader.getAvailableScenes();
-      
+      console.log('✅ 可用场景:', availableScenes);
+
       // 加载每个场景的基本信息
+      console.log('📖 开始加载场景详情...');
       const stories = await Promise.all(
         availableScenes.map(async (sceneId) => {
           try {
+            console.log(`🔄 加载场景: ${sceneId}`);
             const scene = await this.sceneLoader.loadScene(sceneId);
+            console.log(`✅ 场景 ${sceneId} 加载成功`);
             return {
               id: scene.id,
               title: scene.title,
@@ -50,7 +66,7 @@ export class StoryController {
               isActive: true,
             };
           } catch (error) {
-            console.warn(`加载场景 ${sceneId} 失败:`, error);
+            console.error(`❌ 加载场景 ${sceneId} 失败:`, error);
             return null;
           }
         })
@@ -58,6 +74,7 @@ export class StoryController {
 
       // 过滤掉加载失败的场景
       const validStories = stories.filter(story => story !== null);
+      console.log(`✅ 成功加载 ${validStories.length} 个故事`);
 
       res.json({
         success: true,
@@ -69,11 +86,13 @@ export class StoryController {
       });
 
     } catch (error) {
-      console.error('获取故事列表失败:', error);
+      console.error('❌ 获取故事列表失败:', error);
+      console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
       res.status(500).json({
         success: false,
         error: 'InternalServerError',
         message: '获取故事列表时发生错误',
+        details: error instanceof Error ? error.message : String(error),
       });
     }
   }

@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+// 🚨 修复：在开发环境使用相对路径，利用Vite代理
+const isDevelopment = import.meta.env.DEV;
+const API_BASE_URL = isDevelopment
+  ? '' // 开发环境使用相对路径，通过Vite代理
+  : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002');
 
 // 创建axios实例
 const api = axios.create({
@@ -97,13 +101,20 @@ export class ApiClient {
     });
 
     // axios拦截器已经返回了response.data，所以这里的response就是API的响应体
-    // 后端返回格式：{success: true, stories: [...]}
-    if (response && response.success && response.stories) {
+    // 🔧 修复：后端返回格式：{success: true, data: {stories: [...], total: 3}, message: "..."}
+    if (response && (response as any).success && (response as any).data && (response as any).data.stories) {
       console.log('✅ API客户端: 故事数据解析成功', {
-        storiesCount: response.stories.length,
-        stories: response.stories
+        storiesCount: (response as any).data.stories.length,
+        stories: (response as any).data.stories,
+        total: (response as any).data.total
       });
-      return response; // 返回完整响应，包含stories数组
+      // 🔧 返回标准化格式，将stories提取到顶层
+      return {
+        success: true,
+        stories: (response as any).data.stories,
+        total: (response as any).data.total,
+        message: (response as any).message
+      };
     } else {
       console.error('❌ API客户端: 响应格式不正确', response);
       throw new Error('API响应格式不正确');
@@ -115,7 +126,7 @@ export class ApiClient {
    */
   async getStoryById(storyId: string) {
     const response = await api.get(`/stories/${storyId}`);
-    return response.data; // 返回完整的API响应
+    return response; // axios拦截器已经返回了response.data
   }
 
   /**
@@ -126,7 +137,7 @@ export class ApiClient {
       storyId,
       userId,
     });
-    return response.data; // 返回完整的API响应 {success, data: {gameId, ...}, message}
+    return response; // axios拦截器已经返回了response.data，所以这里直接返回response
   }
 
   /**
@@ -134,7 +145,7 @@ export class ApiClient {
    */
   async getGameState(gameId: string) {
     const response = await api.get(`/game/${gameId}`);
-    return response.data; // axios拦截器已经返回了response.data
+    return response; // axios拦截器已经返回了response.data
   }
 
   /**
@@ -145,7 +156,7 @@ export class ApiClient {
       choicePointId,
       selectedOptionId,
     });
-    return response.data; // axios拦截器已经返回了response.data
+    return response; // axios拦截器已经返回了response.data
   }
 
   /**
@@ -153,7 +164,7 @@ export class ApiClient {
    */
   async pauseGame(gameId: string) {
     const response = await api.post(`/game/${gameId}/pause`);
-    return response.data;
+    return response;
   }
 
   /**
@@ -161,7 +172,15 @@ export class ApiClient {
    */
   async resumeGame(gameId: string) {
     const response = await api.post(`/game/${gameId}/resume`);
-    return response.data;
+    return response;
+  }
+
+  /**
+   * 提交选择
+   */
+  async submitChoice(gameId: string, choiceData: { choicePointId: string; selectedOptionId: string }) {
+    const response = await api.post(`/game/${gameId}/choice`, choiceData);
+    return response;
   }
 
   /**
@@ -169,7 +188,7 @@ export class ApiClient {
    */
   async endGame(gameId: string) {
     const response = await api.post(`/game/${gameId}/end`);
-    return response.data;
+    return response;
   }
 
   /**
@@ -177,7 +196,7 @@ export class ApiClient {
    */
   async healthCheck() {
     const response = await api.get('/health');
-    return response.data;
+    return response;
   }
 }
 

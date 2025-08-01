@@ -64,6 +64,32 @@ export interface GameAction {
   parameters?: Record<string, any>;
 }
 
+// 🎯 目标组件类型定义
+export interface GoalComponent {
+  currentGoal: string;
+  goalPriority: number;
+  goalStartTime: number;
+  goalContext: Record<string, any>;
+  availableGoals: string[];
+}
+
+// 🎭 性格组件类型定义
+export interface PersonalityComponent {
+  traits: Record<string, number>; // 特质名称 -> 强度值 (0-1)
+  actionModifiers: Record<string, number>; // 动作类型 -> 修正值
+  emotionalState: string;
+  stressLevel: number; // 0-1
+}
+
+// 📝 动作历史记录
+export interface ActionHistoryEntry {
+  actionType: string;
+  timestamp: number;
+  target?: string;
+  success: boolean;
+  context?: Record<string, any>;
+}
+
 // 角色相关类型
 export interface Character {
   id: string;
@@ -72,6 +98,10 @@ export interface Character {
   personality: string;
   goals: string[];
   relationships?: Record<string, string>;
+
+  // 🚀 新增：目标和性格组件
+  goalComponent?: GoalComponent;
+  personalityComponent?: PersonalityComponent;
 }
 
 // 事件类型

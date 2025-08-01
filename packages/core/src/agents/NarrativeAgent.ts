@@ -34,9 +34,11 @@ export class NarrativeAgent {
   }
 
   /**
-   * 设置事件监听器
+   * 设置事件监听器 - 事件驱动架构
    */
   private setupEventListeners(): void {
+    console.log('📝 NarrativeAgent: 设置事件驱动架构监听器');
+
     // 监听场景加载事件
     eventBus.on('SCENE_LOADED', ({ sceneId, scene }) => {
       this.handleSceneLoaded(scene);
@@ -47,15 +49,19 @@ export class NarrativeAgent {
       this.handleSceneUpdated(changes);
     });
 
-    // 监听动作执行事件
-    eventBus.on('ACTION_EXECUTED', ({ action, result }) => {
-      this.handleActionExecuted(action, result);
+    // 🚀 事件驱动架构：监听ACTION_EXECUTED事件，将结构化事件转换为文学文本
+    eventBus.on('ACTION_EXECUTED', ({ action, result, worldState, timestamp }) => {
+      console.log('📝 NarrativeAgent: 收到ACTION_EXECUTED事件', {
+        actionType: action.type,
+        timestamp: new Date(timestamp).toISOString()
+      });
+      this.handleActionExecuted(action, result, worldState);
     });
 
-    // 监听玩家选择事件
-    eventBus.on('PLAYER_CHOICE_MADE', ({ choicePointId, selectedOptionId, action }) => {
-      this.handlePlayerChoice(choicePointId, selectedOptionId, action);
-    });
+    // 🚫 移除PLAYER_CHOICE_MADE事件监听 - 现在由Director统一处理所有叙事内容生成
+    // eventBus.on('PLAYER_CHOICE_MADE', ({ choicePointId, selectedOptionId, action }) => {
+    //   this.handlePlayerChoice(choicePointId, selectedOptionId, action);
+    // });
   }
 
   /**
@@ -107,15 +113,58 @@ export class NarrativeAgent {
   }
 
   /**
-   * 处理动作执行
+   * 处理动作执行 - 事件驱动架构
    */
-  private async handleActionExecuted(action: GameAction, result: any): Promise<void> {
-    if (!this.currentScene) return;
+  private async handleActionExecuted(action: GameAction, result: any, worldState: any): Promise<void> {
+    if (!this.currentScene) {
+      console.log('📝 NarrativeAgent: 无当前场景，跳过动作叙述生成');
+      return;
+    }
 
-    // 生成动作执行的叙述
-    const narrative = await this.generateActionNarrative(action, result);
-    if (narrative) {
-      this.addNarrativeSegment(narrative);
+    console.log('📝 NarrativeAgent: 开始为动作生成文学化叙述', {
+      actionType: action.type,
+      actionTarget: action.target,
+      sceneId: this.currentScene.id
+    });
+
+    try {
+      // 生成动作执行的叙述
+      const narrative = await this.generateActionNarrative(action, result);
+
+      if (narrative) {
+        console.log('✅ NarrativeAgent: 叙述生成成功', {
+          narrativeId: narrative.id,
+          contentLength: narrative.content.length,
+          contentPreview: narrative.content.substring(0, 50) + '...'
+        });
+
+        // 🚀 事件驱动架构：发布NARRATIVE_READY事件，而不是直接添加到历史
+        eventBus.emit('NARRATIVE_READY', {
+          segment: {
+            id: narrative.id, // 🔧 修复：使用narrative的id
+            type: narrative.type as 'narration' | 'dialogue' | 'introspection',
+            content: narrative.content,
+            character: narrative.character,
+            timestamp: narrative.timestamp, // 🔧 修复：添加timestamp字段
+            metadata: {
+              narrativeId: narrative.id,
+              actionType: action.type,
+              timestamp: narrative.timestamp,
+              source: 'NarrativeAgent'
+            }
+          },
+          timestamp: Date.now()
+        });
+
+        console.log('✅ NarrativeAgent: 已发布NARRATIVE_READY事件');
+
+        // 仍然添加到本地历史以供调试
+        this.addNarrativeSegment(narrative);
+      } else {
+        console.log('❌ NarrativeAgent: 叙述生成失败');
+      }
+    } catch (error) {
+      console.error('❌ NarrativeAgent: 处理动作执行失败:', error);
     }
   }
 

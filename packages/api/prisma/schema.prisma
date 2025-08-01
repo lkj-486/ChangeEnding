@@ -41,20 +41,28 @@ model Story {
   @@map("stories")
 }
 
-// 游戏状态表
+// 游戏状态表 - 升级版本支持叙事账本
 model GameState {
   id       String @id @default(cuid())
+  gameId   String @unique // 游戏实例ID，与前端保持一致
   storyId  String
   userId   String?
-  
+
   // 游戏状态数据
   currentSceneId    String?
   sceneState        String   @default("LOADING") // LOADING, RUNNING, PAUSED, ENDED
-  worldState        Json     // 序列化的ECS世界状态
-  narrativeHistory  Json     @default("[]") // 叙事历史
+
+  // 新架构：叙事账本和状态快照
+  narrativeLedger   Json     // 完整的叙事账本状态
+  worldStateJson    Json     // 序列化的游戏世界状态
+  narrativeHistory  Json     @default("[]") // 叙事历史（向后兼容）
   choiceHistory     Json     @default("[]") // 选择历史
   gameProgress      Json     @default("{}") // 游戏进度数据
-  
+
+  // 快照元数据
+  snapshotVersion   String   @default("1.0") // 快照格式版本
+  isActive          Boolean  @default(true)  // 是否为活跃游戏
+
   // 时间戳
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

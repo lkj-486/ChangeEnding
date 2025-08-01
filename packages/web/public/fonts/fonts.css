@@ -1,0 +1,34 @@
+/**
+ * Noto Serif SC 字体配置
+ * 本地化托管方案，优化性能
+ */
+
+/* 临时使用Google Fonts CDN，避免404错误 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap');
+
+/* 备用本地字体配置（当字体文件可用时启用）
+@font-face {
+  font-family: 'Noto Serif SC';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./NotoSerifSC-Regular.woff2') format('woff2'),
+       url('./NotoSerifSC-Regular.woff') format('woff');
+  unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+2A700-2B73F, U+2B740-2B81F, U+2B820-2CEAF, U+F900-FAFF, U+2F800-2FA1F;
+}
+
+@font-face {
+  font-family: 'Noto Serif SC';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./NotoSerifSC-Bold.woff2') format('woff2'),
+       url('./NotoSerifSC-Bold.woff') format('woff');
+  unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+2A700-2B73F, U+2B740-2B81F, U+2B820-2CEAF, U+F900-FAFF, U+2F800-2FA1F;
+}
+*/
+
+/* 字体回退链配置 */
+.font-serif {
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Noto Serif CJK SC', serif;
+}

@@ -37,7 +37,7 @@ export class PlayerInterventionHandler {
 
   constructor(config: PlayerInterventionConfig = {}) {
     this.config = {
-      choiceTimeout: 30000, // 默认30秒超时
+      choiceTimeout: 300000, // 🚨 设置5分钟超时，防止游戏卡死但给用户充足时间
       defaultChoice: '', // 默认选择第一个选项
       enableAutoChoice: false,
       ...config,
@@ -90,12 +90,14 @@ export class PlayerInterventionHandler {
     this.isWaitingForChoice = true;
     console.log(`⏳ 设置等待选择状态`);
 
-    // 设置超时处理
+    // 🚨 设置合理的超时处理：5分钟后自动选择，防止游戏卡死
     if (this.config.choiceTimeout! > 0) {
       this.currentChoice.timeoutId = setTimeout(() => {
         this.handleChoiceTimeout();
       }, this.config.choiceTimeout);
-      console.log(`⏰ 设置选择超时: ${this.config.choiceTimeout}ms`);
+      console.log(`⏰ 设置选择超时: ${Math.round(this.config.choiceTimeout! / 1000)}秒 (${Math.round(this.config.choiceTimeout! / 60000)}分钟)`);
+    } else {
+      console.log(`🔒 [PlayerInterventionHandler] 超时机制已禁用，等待用户手动确认选择`);
     }
 
     // 通知外部系统需要玩家选择
@@ -165,11 +167,13 @@ export class PlayerInterventionHandler {
 
   /**
    * 处理选择超时
+   * 🚨 5分钟后自动选择第一个选项，防止游戏永久卡死
    */
   private handleChoiceTimeout(): void {
     if (!this.currentChoice) return;
 
-    console.log('选择超时，使用默认选择');
+    console.warn('⏰ [PlayerInterventionHandler] 选择超时，自动选择第一个选项防止游戏卡死');
+    console.warn('💡 建议用户在选择出现后及时确认选择');
 
     let defaultOptionId = this.config.defaultChoice;
 
@@ -179,6 +183,7 @@ export class PlayerInterventionHandler {
     }
 
     if (defaultOptionId) {
+      console.log(`🤖 自动选择: ${defaultOptionId}`);
       this.makeChoice(defaultOptionId);
     } else {
       console.error('无法确定默认选择，强制结束选择状态');
